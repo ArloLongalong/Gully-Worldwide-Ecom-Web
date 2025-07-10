@@ -1,0 +1,14 @@
+{
+    "name": "gully-app/ecommerce",
+    "description": "Gully App E-commerce Platform",
+    "type": "project",
+    "require": {
+        "xendit/xendit-php": "^3.0"
+    },
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "your.email@example.com"
+        }
+    ]
+}
