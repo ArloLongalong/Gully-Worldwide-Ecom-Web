@@ -239,7 +239,7 @@ function cart(){
       echo "<script>alert('This item is already in the cart')</script>";
       echo "<script>window.open('index.php', '_self')</script>";
     } else {
-      $insert_query = "INSERT INTO `cart_details` (product_id, ip_address, quantity) VALUES ($get_product_id, '$get_ip_address', 0)";
+      $insert_query = "INSERT INTO `cart_details` (product_id, ip_address, quantity) VALUES ($get_product_id, '$get_ip_address', 1)";
       $result_query = mysqli_query($con, $insert_query);
       echo "<script>alert('Item added to cart successfully')</script>";
       echo "<script>window.open('index.php', '_self')</script>";
@@ -277,7 +277,10 @@ function total_cart_price(){
   $result_query = mysqli_query($con, $cart_query);
   while ($row = mysqli_fetch_array($result_query)) {
     $product_id = $row['product_id'];
-    $quantity = $row['quantity'] > 0 ? $row['quantity'] : 1; // Default to 1 if quantity is 0
+    $quantity = $row['quantity'];
+    if ($quantity <= 0) {
+      $quantity = 1;
+    }
     $select_products = "SELECT * FROM `products` WHERE product_id=$product_id";
     $result_products = mysqli_query($con, $select_products); 
     while ($row_product_price = mysqli_fetch_array($result_products)) {

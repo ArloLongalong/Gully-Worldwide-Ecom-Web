@@ -37,6 +37,11 @@ if (!isset($_SESSION['username'])) {
                             while ($row = mysqli_fetch_array($result_query)) {
                                 $product_id = $row['product_id'];
                                 $quantity = $row['quantity'];
+                                
+                                if ($quantity <= 0) {
+                                    $quantity = 1;
+                                }
+                                
                                 $select_products = "SELECT * FROM `products` WHERE product_id=$product_id";
                                 $result_products = mysqli_query($con, $select_products);
                                 

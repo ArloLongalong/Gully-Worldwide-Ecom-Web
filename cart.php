@@ -14,14 +14,17 @@ if (isset($_POST['update_cart'])) {
         for ($i = 0; $i < count($product_ids); $i++) {
             $product_id = $product_ids[$i];
             $quantity = $quantities[$i];
+            
+            if ($quantity <= 0) {
+                $quantity = 1;
+            }
+            
             $update_cart = "UPDATE `cart_details` SET quantity='$quantity' WHERE ip_address='$get_ip_address' AND product_id='$product_id'";
             $result_update = mysqli_query($con, $update_cart);
         }
         
-        if ($result_update) {
-            echo "<script>alert('Cart updated successfully!')</script>";
-            echo "<script>window.open('cart.php', '_self')</script>";
-        }
+        echo "<script>alert('Cart updated successfully!')</script>";
+        echo "<script>window.open('cart.php', '_self')</script>";
     }
 }
 
@@ -155,15 +158,19 @@ if(!isset($_SESSION['username'])) {
           while ($row = mysqli_fetch_array($result_query)) {
             $product_id = $row['product_id'];
             $quantity = $row['quantity'];
+            
+            if ($quantity <= 0) {
+                $quantity = 1;
+            }
+            
             $select_products = "SELECT * FROM `products` WHERE product_id=$product_id";
             $result_products = mysqli_query($con, $select_products); 
             while ($row_product_price = mysqli_fetch_array($result_products)) {
-              $product_price = array($row_product_price['product_price']);
-              $price_table = $row_product_price['product_price'];
+              $product_price = $row_product_price['product_price'];
               $product_title = $row_product_price['product_title'];
               $product_image1 = $row_product_price['product_image1'];
-              $product_values = array_sum($product_price);
-              $total_cart_price += ($product_values * $quantity);
+              $item_total = $product_price * $quantity;
+              $total_cart_price += $item_total;
               ?>
               <tr>
                 <td><?php echo $product_title?></td>
@@ -172,7 +179,7 @@ if(!isset($_SESSION['username'])) {
                   <input type="hidden" name="product_id[]" value="<?php echo $product_id?>">
                   <input type="number" class="form-control w-50 mx-auto" name="qty[]" value="<?php echo $quantity?>" min="1">
                 </td>
-                <td>₱<?php echo $price_table * $quantity?></td>
+                <td>₱<?php echo $item_total?></td>
                 <td><input type="checkbox" name="remove_item[]" value="<?php echo $product_id?>"></td>
                 <td><input type="submit" value="Update Cart" name="update_cart" class="bg-dark text-light px-3 py-2 border-0 mx-1"></td>
                 <td><input type="submit" value="Remove Cart" name="remove_cart" class="bg-danger text-light px-3 py-2 border-0 mx-1"></td>
