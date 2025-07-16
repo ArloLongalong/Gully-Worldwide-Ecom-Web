@@ -1,4 +1,7 @@
 <?php
+include('../payment.php');
+echo 'payment.php imported';
+
 // Check if user is logged in
 if (!isset($_SESSION['username'])) {
     echo "<script>window.open('users_area/user_login.php', '_self')</script>";
@@ -81,8 +84,8 @@ if (!isset($_SESSION['username'])) {
                             <label for="offline" class="form-label">Offline Payment</label>
                         </div>
                         <div class="mb-3">
-                            <input type="radio" id="online" name="payment_mode" value="gcash" required>
-                            <label for="online" class="form-label">Pay Online (GCash)</label>
+                            <input type="radio" id="online" name="payment_mode" value="online" required>
+                            <label for="online" class="form-label">Pay Online</label>
                         </div>
                         <input type="submit" value="Continue" name="continue" class="btn btn-dark w-100">
                     </form>
@@ -100,8 +103,24 @@ if (isset($_POST['continue'])) {
         echo "<script>alert('Your order has been submitted successfully! Pay when your order arrives.')</script>";
         echo "<script>window.open('order.php', '_self')</script>";
     } else {
-        echo "<script>alert('Redirecting to GCash payment...')</script>";
-        echo "<script>window.open('https://www.gcash.com', '_self')</script>";
+        $user_email = isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'customer@gullyworldwide.com';
+        
+        if ($total_cart_price > 0) {
+            $payment_response = createPayment((string)$total_cart_price, $user_email);
+
+            if (!$payment_response) {
+                echo "<script>alert('Payment setup failed: Invalid response from payment gateway')</script>";
+                error_log("JSON decode failed. Response: " . $payment_response);
+            } elseif (isset($payment_response['success']) && $payment_response['success']) {
+                echo "<script>alert('Redirecting to payment gateway...')</script>";
+                echo "<script>window.open('" . $payment_response['invoice_url'] . "', '_self')</script>";
+            } else {
+                $error_message = isset($payment_response['message']) ? $payment_response['message'] : 'Unknown error';
+                echo "<script>alert('Payment setup failed: " . $error_message . "')</script>";
+            }
+        } else {
+            echo "<script>alert('Invalid cart total. Please add items to your cart.')</script>";
+        }
     }
 }
 ?>

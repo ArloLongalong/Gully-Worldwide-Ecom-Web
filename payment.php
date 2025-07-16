@@ -40,27 +40,23 @@ function createPayment($amount, $payerEmail = null)
     $paymentResponse = $apiInstance->createInvoice($createInvoiceRequest);
     $invoiceUrl = $paymentResponse['invoice_url'];
 
-    $response = json_encode(
-      [
-        'success'     => true,
-        'message'     => 'Payment data',
-        'data'        => $paymentResponse,
-        'invoice_url' => $invoiceUrl,
-      ]
-    );
+    $response = [
+      'success'     => true,
+      'message'     => 'Payment data',
+      'data'        => $paymentResponse,
+      'invoice_url' => $invoiceUrl,
+    ];
 
-    echo $response;
+    return $response;
   } catch (Exception $e)
   {
-    $response = json_encode(
-      [
-        'success' => false,
-        'message' => 'Internal error, Failed to process payment: ' . $e->getMessage()
-      ]
-    );
+    $response = [
+      'success' => false,
+      'message' => 'Internal error, Failed to process payment: ' . $e->getMessage()
+    ];
 
-    echo $response;
+    return $response;
   }
 }
 
-createPayment(1000, 'customer@example.com');
+// createPayment(1000, 'customer@example.com');
