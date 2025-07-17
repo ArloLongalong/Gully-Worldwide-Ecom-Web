@@ -37,6 +37,9 @@ include('functions/common_function.php');
         <li class="nav-item">
           <a class="nav-link" href="display_all.php">Products</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="ai-product-compare.php">Product Compare (AI)</a>
+        </li>
                 <li class="nav-item">
           <a class="nav-link" href="#">Register</a>
         </li>
