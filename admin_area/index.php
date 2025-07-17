@@ -1,7 +1,9 @@
 <!-- Connect to the database -->
+<!-- Connect to the database -->
 <?php
 include('../includes/connect.php');
-?>
+include('../functions/common_function.php');
+?> 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,10 +47,10 @@ include('../includes/connect.php');
     <div class="flex-grow-1 d-flex justify-content-center">
       <div class="button text-center">
         <a href="insert_product.php" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">Insert Products</a>
-        <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">View Products</a>
+        <a href="index.php?view_products" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">View Products</a>
         <a href="index.php?insert_category" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">Insert Categories</a>
-        <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">View Categories</a>
-        <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">All Orders</a>
+        <a href="index.php?view_categories" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">View Categories</a>
+        <a href="index.php?list_orders" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">All Orders</a>
         <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">All Payments</a>
         <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">List Users</a>
         <a href="#" class="nav-link text-light bg-dark my-1 px-3 py-2 d-inline-block">Logout</a>
@@ -63,16 +65,33 @@ include('../includes/connect.php');
     if (isset($_GET['insert_category'])) {
         include('insert_categories.php');
     }
+    if (isset($_GET['view_products'])) {
+        include('view_products.php');
+    }
+    if (isset($_GET['edit_products'])) {
+        include('edit_products.php');
+    }
+    if (isset($_GET['delete_product'])) {
+        include('delete_product.php');
+    }
+    if (isset($_GET['view_categories'])) {
+        include('view_categories.php');
+    }
+    if (isset($_GET['edit_category'])) {
+        include('edit_categories.php');
+    }
+    if (isset($_GET['delete_category'])) {
+        include('delete_categories.php');
+    }
+    if (isset($_GET['list_orders'])) {
+        include('list_orders.php');
+    }
     ?>
   </div>
-
-
-<!-- last child -->
-<div class="bg-black text-white p-3 text-center">
-  <p>Hope you enjoyed our products, Check out our Facebook Page!</p>
-  <a href="https://www.facebook.com/GullyWorldwide" target="_blank" class="text-white">Facebook</a>
-
-
+<!-- Footer -->
+<?php
+  include('../includes/footer.php');
+  ?>
   <!-- bootstrap js link -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 

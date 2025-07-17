@@ -13,34 +13,27 @@ if(isset($_POST['user_login'])){
     $select_query = "SELECT * FROM `user_table` WHERE username='$user_username'";
     $result = mysqli_query($con, $select_query);
     $row_count = mysqli_num_rows($result);
-    $row_data = mysqli_fetch_assoc($result);
-    $user_ip = getIPAddress(); // Function to get user IP address
+    
+    if($row_count > 0){
+        $row_data = mysqli_fetch_assoc($result);
+        $user_ip = getIPAddress(); // Function to get user IP address
 
-    // Cart Item
-    $select_query_cart = "SELECT * FROM `cart_details` WHERE ip_address='$user_ip'";
-    $select_cart = mysqli_query($con, $select_query_cart);
-    $row_count_cart = mysqli_num_rows($select_cart);
-    if($row_count>0){
-      if($row_count==1 and $row_count_cart==0){
-        $_SESSION['username'] = $user_username;
-        echo "<script>alert('Login successful!')</script>";
-        echo "<script>window.open('profile.php', '_self')</script>";
-      } else {
-        $_SESSION['username'] = $user_username;
-        echo "<script>alert('Login successful!')</script>";
-        echo "<script>window.open('payment.php', '_self')</script>";
-      }
-    }
-    if(mysqli_num_rows($result) > 0){
-        $row = mysqli_fetch_assoc($result);
-        $hashed_password = $row['user_password'];
+        // Cart Item
+        $select_query_cart = "SELECT * FROM `cart_details` WHERE ip_address='$user_ip'";
+        $select_cart = mysqli_query($con, $select_query_cart);
+        $row_count_cart = mysqli_num_rows($select_cart);
         
         // Verify the password
         if(password_verify($user_password, $row_data['user_password'])){
             $_SESSION['username'] = $user_username;
-            if($row_count==1 and $row_)
             echo "<script>alert('Login successful!')</script>";
-            echo "<script>window.open('checkout.php', '_self')</script>";
+            
+            // Check if user has items in cart
+            if($row_count_cart == 0){
+                echo "<script>window.open('profile.php', '_self')</script>";
+            } else {
+                echo "<script>window.open('payment.php', '_self')</script>";
+            }
         } else {
             echo "<script>alert('Incorrect password!')</script>";
         }

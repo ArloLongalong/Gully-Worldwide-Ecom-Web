@@ -3,6 +3,9 @@
 include('includes/connect.php');
 include('functions/common_function.php');
 session_start();
+
+// Debug: Uncomment the line below to see session status
+// echo "Debug: Session username = " . (isset($_SESSION['username']) ? $_SESSION['username'] : 'Not set') . "<br>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,9 +43,23 @@ session_start();
         <li class="nav-item">
           <a class="nav-link" href="display_all.php">Products</a>
         </li>
-                <li class="nav-item">
-          <a class="nav-link" href="./users_area/user_registration.php">Register</a>
-        </li>
+        <?php
+        if(!isset($_SESSION['username'])) {
+          echo " <li class='nav-item'>
+              <a class='nav-link' href='./users_area/user_login.php'>Login</a>
+            </li>
+            <li class='nav-item'>
+              <a class='nav-link' href='./users_area/user_registration.php'>Register</a>
+            </li>";
+        } else {
+          echo "<li class='nav-item'>
+              <a class='nav-link' href='./users_area/profile.php'>Profile</a>
+            </li>
+            <li class='nav-item'>
+              <a class='nav-link' href='./users_area/logout.php'>Logout</a>
+            </li>";
+        }
+        ?>
                 <li class="nav-item">
           <a class="nav-link" href="#">Contact</a>
         </li>

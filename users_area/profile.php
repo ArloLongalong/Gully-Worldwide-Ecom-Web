@@ -164,6 +164,12 @@ if(!isset($_SESSION['username'])) {
       if (isset($_GET['edit_account'])) {
         include('edit_account.php');
       }
+      if (isset($_GET['my_orders'])) {
+        include('users_order.php');
+      }
+      if (isset($_GET['delete_account'])) {
+        include('delete_account.php');
+      }
       ?>
     </div>
   </div>
