@@ -67,7 +67,7 @@ sudo systemctl enable docker
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/ArloLongalong/Gully-Worldwide-Ecom-Web.git
 cd gullywebshop
 
 # Or if you already have the project locally
