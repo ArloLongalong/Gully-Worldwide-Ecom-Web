@@ -2,7 +2,31 @@
 <?php
 include('includes/connect.php');
 include('functions/common_function.php');
+$env = parse_ini_file('.env');
 session_start();
+
+$openai_api_key = $env['OPENAI_API_KEY'];
+$openai_baseurl = $env['OPENAI_BASEURL'];
+
+function get_all_products_for_compare() {
+  global $con;
+  $select_query = "SELECT * FROM `products`";
+  $result_query = mysqli_query($con, $select_query);
+  $products = array();
+  
+  while($row = mysqli_fetch_assoc($result_query)) {
+    $products[] = array(
+      'id' => $row['product_id'],
+      'title' => $row['product_title'],
+      'description' => $row['product_description'],
+      'image' => $row['product_image1'],
+      'price' => $row['product_price']
+    );
+  }
+  return $products;
+}
+
+$products = get_all_products_for_compare();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -111,7 +135,7 @@ if(!isset($_SESSION['username'])) {
 
 <div class="bg-light main-content py-5">
   <div class="container">
-    <h2 class="text-center mb-4">Compare Products</h2>
+    <h2 class="text-center mb-4">Compare Products (AI)</h2>
     <div class="row justify-content-center">
       <!-- Product 1 Column -->
       <div class="col-md-5 mb-4">
@@ -120,10 +144,9 @@ if(!isset($_SESSION['username'])) {
             <label for="product1" class="form-label fw-bold">Select Product 1</label>
             <select id="product1" class="form-select mb-2" onchange="updateProductCard(1)">
               <option value="" selected>Select a product</option>
-              <option value="Fear The Dessert">Fear The Dessert</option>
-              <option value="Frank Ocean">Frank Ocean</option>
-              <option value="Gully Infantry">Gully Infantry</option>
-              <option value="Gully Tough Boyz">Gully Tough Boyz</option>
+              <?php foreach($products as $product): ?>
+                <option value="<?php echo htmlspecialchars($product['title']); ?>"><?php echo htmlspecialchars($product['title']); ?></option>
+              <?php endforeach; ?>
             </select>
           </div>
           <div class="card-body text-center" id="product1-card">
@@ -141,10 +164,9 @@ if(!isset($_SESSION['username'])) {
             <label for="product2" class="form-label fw-bold">Select Product 2</label>
             <select id="product2" class="form-select mb-2" onchange="updateProductCard(2)">
               <option value="" selected>Select a product</option>
-              <option value="Fear The Dessert">Fear The Dessert</option>
-              <option value="Frank Ocean">Frank Ocean</option>
-              <option value="Gully Infantry">Gully Infantry</option>
-              <option value="Gully Tough Boyz">Gully Tough Boyz</option>
+              <?php foreach($products as $product): ?>
+                <option value="<?php echo htmlspecialchars($product['title']); ?>"><?php echo htmlspecialchars($product['title']); ?></option>
+              <?php endforeach; ?>
             </select>
           </div>
           <div class="card-body text-center" id="product2-card">
@@ -156,35 +178,33 @@ if(!isset($_SESSION['username'])) {
         </div>
       </div>
     </div>
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-6 text-center">
+        <button type="button" class="btn btn-primary btn-lg px-5" onclick="generateComparison()">
+          Generate Comparison
+        </button>
+      </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-10">
+        <div id="comparison-result" style="display: none;"></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
-const productData = {
-  "Fear The Dessert": {
-    img: "./admin_area/product_images/Fear-the-dessert.png",
-    title: "Fear The Dessert",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean tincidunt turpis a ultricies vestibulum.",
-    price: "₱600"
-  },
-  "Frank Ocean": {
-    img: "./admin_area/product_images/Frank-ocean.png",
-    title: "Frank Ocean",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam finibus sem justo, aliquet posuere sem luctus quis.",
-    price: "₱600"
-  },
-  "Gully Infantry": {
-    img: "./admin_area/product_images/Gully-infantry.png",
-    title: "Gully Infantry",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum nisl vitae efficitur ullamcorper.",
-    price: "₱600"
-  },
-  "Gully Tough Boyz": {
-    img: "./admin_area/product_images/Gully-tough-boyz.png",
-    title: "Gully Tough Boyz",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc in eros rhoncus magna condimentum fermentum tempus ut ante.",
-    price: "₱600"
+const productData = <?php 
+  $productDataArray = array();
+  foreach($products as $product) {
+    $productDataArray[$product['title']] = array(
+      'img' => "./admin_area/product_images/" . $product['image'],
+      'title' => $product['title'],
+      'desc' => $product['description'],
+      'price' => "₱" . $product['price']
+    );
   }
-};
+  echo json_encode($productDataArray);
+?>;
 function updateProductCard(num) {
   const select = document.getElementById(`product${num}`);
   const card = document.getElementById(`product${num}-card`);
@@ -200,6 +220,76 @@ function updateProductCard(num) {
     <p class="card-text">${p.desc}</p>
     <p class="fw-bold">Price: ${p.price}</p>
   `;
+}
+
+function generateComparison() {
+  const product1 = document.getElementById('product1').value;
+  const product2 = document.getElementById('product2').value;
+  
+  if (!product1 || !product2) {
+    alert('Please select both products to compare');
+    return;
+  }
+  
+  if (product1 === product2) {
+    alert('Please select different products to compare');
+    return;
+  }
+  
+  const product1Data = productData[product1];
+  const product2Data = productData[product2];
+  
+  const comparisonContainer = document.getElementById('comparison-result');
+  comparisonContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Generating comparison...</p></div>';
+  comparisonContainer.style.display = 'block';
+  
+  fetch('generate_comparison.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      product1: {
+        title: product1,
+        description: product1Data.desc,
+        price: product1Data.price
+      },
+      product2: {
+        title: product2,
+        description: product2Data.desc,
+        price: product2Data.price
+      }
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      comparisonContainer.innerHTML = `
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">AI-Generated Comparison</h4>
+          </div>
+          <div class="card-body">
+            ${data.comparison}
+          </div>
+        </div>
+      `;
+    } else {
+      comparisonContainer.innerHTML = `
+        <div class="alert alert-danger">
+          <strong>Error:</strong> ${data.error}
+        </div>
+      `;
+    }
+  })
+  .catch(error => {
+    comparisonContainer.innerHTML = `
+      <div class="alert alert-danger">
+        <strong>Error:</strong> Failed to generate comparison. Please try again.
+      </div>
+    `;
+    console.error('Error:', error);
+  });
 }
 </script>
 
