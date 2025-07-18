@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./uploads:/var/www/html/uploads
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=gully_password
+      - DB_NAME=gullydb
+    networks:
+      - gully-network
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: gully_password
+      MYSQL_DATABASE: gullydb
+      MYSQL_USER: gully_user
+      MYSQL_PASSWORD: gully_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./gully.sql:/docker-entrypoint-initdb.d/gully.sql
+    networks:
+      - gully-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: gully_password
+    depends_on:
+      - db
+    networks:
+      - gully-network
+
+volumes:
+  mysql_data:
+
+networks:
+  gully-network:
+    driver: bridge
